@@ -1,0 +1,4 @@
+{
+  "watcher_directory": "temp/",
+  "watcher_command": "php -f script.php < config.json"
+}
