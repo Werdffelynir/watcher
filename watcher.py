@@ -1,4 +1,4 @@
-#!/usr/bin/python3.5
+#!/usr/bin/python3
 
 import os
 import sys
@@ -8,7 +8,10 @@ import fcntl
 import signal
 from pprint import pprint
 
+# use:
 # python3 watcher.py 'temp' 'php -f script.php'
+# watcher --help
+
 FNAME = False
 SYSCOMMAND = False
 
@@ -42,10 +45,16 @@ def parse_json_file(file):
 if len(arguments) is 2:
     FNAME = to_path(arguments[0])
     SYSCOMMAND = arguments[1]
-elif len(arguments) is 1 and os.path.isfile(arguments[0]):
-    config = parse_json_file(arguments[0])
-    FNAME = config['directory']
-    SYSCOMMAND = config['command']
+elif len(arguments) is 1:
+    if arguments[0] == '--help':
+        print('[watcher] Использование:')
+        print('[watcher] watcher FILE_PATH "BASH_COMMANSD"')
+        print('[watcher] watcher FILE_CONFIG')
+        exit()
+    elif os.path.isfile(arguments[0]):
+        config = parse_json_file(arguments[0])
+        NAME = config['directory']
+        SYSCOMMAND = config['command']
 elif os.path.isfile('config.json'):
     config = parse_json_file('config.json')
     FNAME = config['directory']
