@@ -6,9 +6,7 @@ import json
 import time
 import fcntl
 import signal
-from pprint import pprint
 
-# python3 watcher.py 'temp' 'php -f script.php'
 FNAME = False
 SYSCOMMAND = False
 
@@ -70,11 +68,12 @@ def handler(signum, frame):
         pass
 
 
-# FileNotFoundError:
-fd = os.open(FNAME,  os.O_RDONLY)
-fcntl.fcntl(fd, fcntl.F_NOTIFY, fcntl.DN_MODIFY | fcntl.DN_MULTISHOT)
-
-signal.signal(signal.SIGIO, handler)
-
-while True:
-    time.sleep(1000)
+try:
+    fd = os.open(FNAME,  os.O_RDONLY)
+    fcntl.fcntl(fd, fcntl.F_NOTIFY, fcntl.DN_MODIFY | fcntl.DN_MULTISHOT)
+    signal.signal(signal.SIGIO, handler)
+    while True:
+        time.sleep(1000)
+except FileNotFoundError:
+    print('[watcher] Command not find. Exit')
+    exit()
