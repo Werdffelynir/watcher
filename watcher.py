@@ -1,4 +1,4 @@
-#!/usr/bin/python3.5
+#!/usr/bin/python3
 
 import os
 import sys
@@ -7,8 +7,14 @@ import time
 import fcntl
 import signal
 
-FNAME = False
-SYSCOMMAND = False
+# use:
+# python3 watcher.py 'temp' 'php -f script.php'
+# python3 watcher.py config.json
+# watcher --help
+
+SHOW_LOG = True
+CHANGE_PATH = False
+SYSTEM_COMMAND = False
 
 arguments = sys.argv[1:]
 
@@ -38,22 +44,28 @@ def parse_json_file(file):
 
 
 if len(arguments) is 2:
-    FNAME = to_path(arguments[0])
-    SYSCOMMAND = arguments[1]
-elif len(arguments) is 1 and os.path.isfile(arguments[0]):
-    config = parse_json_file(arguments[0])
-    FNAME = config['directory']
-    SYSCOMMAND = config['command']
+    CHANGE_PATH = to_path(arguments[0])
+    SYSTEM_COMMAND = arguments[1]
+elif len(arguments) is 1:
+    if arguments[0] == '--help':
+        print('[watcher] Uses:')
+        print('[watcher] watcher FILE_PATH "BASH_COMMANSD"')
+        print('[watcher] watcher FILE_CONFIG')
+        exit()
+    elif os.path.isfile(arguments[0]):
+        config = parse_json_file(arguments[0])
+        CHANGE_PATH = config['directory']
+        SYSTEM_COMMAND = config['command']
 elif os.path.isfile('config.json'):
     config = parse_json_file('config.json')
-    FNAME = config['directory']
-    SYSCOMMAND = config['command']
+    CHANGE_PATH = config['directory']
+    SYSTEM_COMMAND = config['command']
 
 
-if os.path.exists(FNAME) is False:
-    print('[watcher] Path not exist "%s". Exit' % (FNAME))
+if os.path.exists(CHANGE_PATH) is False:
+    print('[watcher] Path not exist "%s". Exit' % (CHANGE_PATH))
     exit()
-elif SYSCOMMAND is False:
+elif SYSTEM_COMMAND is False:
     print('[watcher] Command not find. Exit')
     exit()
 else:
@@ -62,18 +74,19 @@ else:
 
 def handler(signum, frame):
     try:
-        print('[watcher] Catch changes "%s". run "%s"' % (FNAME, SYSCOMMAND))
-        os.system(SYSCOMMAND)
+        if SHOW_LOG:
+            print('[watcher] Catch changes "%s". run "%s"' % (CHANGE_PATH, SYSTEM_COMMAND))
+
+        os.system(SYSTEM_COMMAND)
+
     except RuntimeError:
         pass
 
 
-try:
-    fd = os.open(FNAME,  os.O_RDONLY)
-    fcntl.fcntl(fd, fcntl.F_NOTIFY, fcntl.DN_MODIFY | fcntl.DN_MULTISHOT)
-    signal.signal(signal.SIGIO, handler)
-    while True:
-        time.sleep(1000)
-except FileNotFoundError:
-    print('[watcher] Command not find. Exit')
-    exit()
+fd = os.open(CHANGE_PATH, os.O_RDONLY)
+fcntl.fcntl(fd, fcntl.F_NOTIFY, fcntl.DN_MODIFY | fcntl.DN_MULTISHOT)
+
+signal.signal(signal.SIGIO, handler)
+
+while True:
+    time.sleep(1000)

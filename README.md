@@ -38,3 +38,14 @@ python3 watcher.py config.json
 ```bash
 python3 watcher.py 'temp/' 'php -f script.php < config.json'
 ```
+
+
+## Установить и добавить ссылку
+
+**bash**
+```bash
+cd /opt
+git clone THIS_RIPO
+ln -sf /opt/watcher/watcher.py /usr/local/bin/watcher
+chmod +x /usr/local/bin/watcher
+```
