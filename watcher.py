@@ -48,6 +48,7 @@ if len(arguments) is 2:
     SYSTEM_COMMAND = arguments[1]
 elif len(arguments) is 1:
     if arguments[0] == '--help':
+        print('[watcher] Utility monitoring a change of the directory or file.')
         print('[watcher] Uses:')
         print('[watcher] watcher FILE_PATH "BASH_COMMANSD"')
         print('[watcher] watcher FILE_CONFIG')
